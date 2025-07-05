@@ -2,39 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Bengali Street Food Design System - Warm, vibrant colors inspired by Dhaka street culture */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 30 15% 97%;
+    --foreground: 15 20% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 35 25% 95%;
+    --card-foreground: 15 20% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 35 25% 95%;
+    --popover-foreground: 15 20% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Warm spice-inspired primary - turmeric/saffron */
+    --primary: 45 85% 55%;
+    --primary-foreground: 15 20% 15%;
+    --primary-glow: 45 90% 70%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Warm secondary - clay pot terra cotta */
+    --secondary: 15 45% 85%;
+    --secondary-foreground: 15 20% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 25 20% 90%;
+    --muted-foreground: 15 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - fresh mint/coriander green */
+    --accent: 140 40% 75%;
+    --accent-foreground: 15 20% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Success - fresh green like coriander */
+    --success: 140 60% 45%;
+    --success-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Warning - paprika orange */
+    --warning: 25 85% 60%;
+    --warning-foreground: 15 20% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 25 30% 85%;
+    --input: 25 30% 85%;
+    --ring: 45 85% 55%;
+
+    /* Custom gradients */
+    --gradient-warm: linear-gradient(135deg, hsl(45 85% 55%), hsl(25 85% 60%));
+    --gradient-spice: linear-gradient(45deg, hsl(15 75% 65%), hsl(35 80% 70%));
+    --gradient-fresh: linear-gradient(135deg, hsl(140 50% 70%), hsl(160 45% 75%));
+    
+    /* Shadows with warm tones */
+    --shadow-warm: 0 4px 12px hsl(45 85% 55% / 0.15);
+    --shadow-spice: 0 8px 25px hsl(25 85% 60% / 0.2);
 
     --radius: 0.5rem;
 
@@ -56,33 +75,54 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 15 25% 8%;
+    --foreground: 35 15% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 15 20% 12%;
+    --card-foreground: 35 15% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 15 20% 12%;
+    --popover-foreground: 35 15% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Darker warm primary for night mode */
+    --primary: 45 75% 65%;
+    --primary-foreground: 15 25% 8%;
+    --primary-glow: 45 80% 75%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Dark warm secondary */
+    --secondary: 15 25% 20%;
+    --secondary-foreground: 35 15% 95%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 15 15% 18%;
+    --muted-foreground: 25 10% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Dark accent - muted green */
+    --accent: 140 25% 25%;
+    --accent-foreground: 35 15% 95%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Dark success */
+    --success: 140 50% 55%;
+    --success-foreground: 15 25% 8%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* Dark warning */
+    --warning: 25 75% 65%;
+    --warning-foreground: 15 25% 8%;
+
+    --destructive: 0 75% 65%;
+    --destructive-foreground: 15 25% 8%;
+
+    --border: 15 20% 25%;
+    --input: 15 20% 25%;
+    --ring: 45 75% 65%;
+
+    /* Dark mode gradients */
+    --gradient-warm: linear-gradient(135deg, hsl(45 75% 45%), hsl(25 75% 50%));
+    --gradient-spice: linear-gradient(45deg, hsl(15 65% 45%), hsl(35 70% 50%));
+    --gradient-fresh: linear-gradient(135deg, hsl(140 40% 35%), hsl(160 35% 40%));
+    
+    /* Dark shadows */
+    --shadow-warm: 0 4px 12px hsl(45 75% 25% / 0.3);
+    --shadow-spice: 0 8px 25px hsl(25 75% 30% / 0.4);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
