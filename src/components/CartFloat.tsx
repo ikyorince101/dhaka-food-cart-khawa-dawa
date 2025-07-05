@@ -1,19 +1,47 @@
 import React, { useState } from 'react';
+import { PaymentModal } from '@/components/PaymentModal';
 import { useApp } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShoppingCart, Plus, Minus, X } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, X, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 export function CartFloat() {
   const { cart, dispatch } = useApp();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  React.useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      if (session?.user) {
+        setCustomerName(session.user.user_metadata?.full_name || '');
+        // Load profile data
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profile) {
+          setCustomerName(profile.full_name || '');
+          setCustomerPhone(profile.phone || '');
+        }
+      }
+    };
+    checkUser();
+  }, []);
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = cart.reduce((sum, item) => sum + (item.menuItem.price * item.quantity), 0);
@@ -55,19 +83,59 @@ export function CartFloat() {
       return;
     }
 
-    dispatch({ 
-      type: 'PLACE_ORDER', 
-      payload: { customerName, customerPhone: customerPhone || undefined } 
-    });
+    // Show payment modal instead of placing order directly
+    setShowPayment(true);
+  };
 
-    toast({
-      title: "Order Placed!",
-      description: `Your order has been placed successfully. Queue number will be announced shortly.`,
-    });
+  const handlePaymentSuccess = async (paymentData: any) => {
+    try {
+      if (user) {
+        // Save order to database for logged-in users
+        const { error } = await supabase
+          .from('orders')
+          .insert({
+            customer_id: user.id,
+            items: JSON.stringify(cart),
+            customer_name: customerName,
+            customer_phone: customerPhone || null,
+            total_amount: totalAmount,
+            status: 'pending',
+            queue_number: Math.floor(Math.random() * 100) + 1,
+            estimated_time: Math.ceil(cart.length * 3 + Math.random() * 5),
+            payment_status: 'completed',
+            payment_method: paymentData.method,
+          });
 
-    setCustomerName('');
-    setCustomerPhone('');
-    setIsOpen(false);
+        if (error) throw error;
+      } else {
+        // For guest users, use the existing context method
+        dispatch({ 
+          type: 'PLACE_ORDER', 
+          payload: { customerName, customerPhone: customerPhone || undefined } 
+        });
+      }
+
+      toast({
+        title: "Order Placed!",
+        description: `Your order has been placed successfully. ${user ? 'Check "My Orders" to track it.' : 'Queue number will be announced shortly.'}`,
+      });
+
+      // Clear form and close modals
+      setCustomerName(user?.user_metadata?.full_name || '');
+      setCustomerPhone('');
+      setIsOpen(false);
+      setShowPayment(false);
+      
+      // Clear cart
+      dispatch({ type: 'CLEAR_CART' });
+      
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to place order. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (totalItems === 0) return null;
@@ -154,26 +222,48 @@ export function CartFloat() {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="customerName">Your Name *</Label>
-                  <Input
-                    id="customerName"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="customerPhone">Phone Number (Optional)</Label>
-                  <Input
-                    id="customerPhone"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    placeholder="Your phone number"
-                    className="mt-1"
-                  />
-                </div>
+                {user ? (
+                  <div className="bg-primary/10 rounded-lg p-4 text-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <User className="h-4 w-4" />
+                      <span className="font-medium">Logged in as {user.email}</span>
+                    </div>
+                    <p className="text-muted-foreground">
+                      Your order will be saved to your account for tracking.
+                    </p>
+                    <Button
+                      variant="link" 
+                      size="sm" 
+                      className="p-0 h-auto"
+                      onClick={() => navigate('/my-orders')}
+                    >
+                      View My Orders →
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <Label htmlFor="customerName">Your Name *</Label>
+                      <Input
+                        id="customerName"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        placeholder="Enter your name"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="customerPhone">Phone Number (Optional)</Label>
+                      <Input
+                        id="customerPhone"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        placeholder="Your phone number"
+                        className="mt-1"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
 
               <Button 
@@ -181,12 +271,25 @@ export function CartFloat() {
                 className="w-full bg-gradient-warm hover:opacity-90 text-primary-foreground shadow-warm"
                 size="lg"
               >
-                Place Order - ${totalAmount.toFixed(2)}
+                Continue to Payment - ${totalAmount.toFixed(2)}
               </Button>
             </>
           )}
         </div>
       </SheetContent>
+
+      {/* Payment Modal */}
+      {showPayment && (
+        <PaymentModal
+          isOpen={showPayment}
+          onClose={() => setShowPayment(false)}
+          cartItems={cart}
+          totalAmount={totalAmount}
+          customerName={customerName}
+          customerPhone={customerPhone}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
     </Sheet>
   );
 }

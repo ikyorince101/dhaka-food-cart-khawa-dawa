@@ -17,47 +17,61 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-      {/* Header */}
+      {/* Mobile-Friendly Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3">
+          {/* Main header row */}
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-warm bg-clip-text text-transparent">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-warm bg-clip-text text-transparent truncate">
                 Dhaka Street Food
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                 Authentic Bengali street flavors 🍛
               </p>
             </div>
             
-            <div className="flex items-center gap-4">
-              <RoleSelector />
+            <div className="flex items-center gap-2 sm:gap-4">
               <ThemeToggle />
               
-              {/* Quick Access Buttons */}
+              {/* Customer Login Button */}
+              {currentUser.role === 'customer' && (
+                <Link to="/auth">
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    Login
+                  </Button>
+                </Link>
+              )}
+              
+              {/* Role selector for non-customers - hidden on mobile */}
+              <div className="hidden sm:block">
+                <RoleSelector />
+              </div>
+              
+              {/* Quick Access Buttons - Responsive */}
               {currentUser.role !== 'customer' && (
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2">
                   <Link to="/queue">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2">
-                      <Monitor className="h-4 w-4" />
-                      Queue
+                    <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3">
+                      <Monitor className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Queue</span>
                     </Button>
                   </Link>
                   
                   {currentUser.role === 'admin' && (
                     <Link to="/admin">
-                      <Button variant="outline" size="sm" className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        Admin
+                      <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3">
+                        <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="hidden sm:inline">Admin</span>
                       </Button>
                     </Link>
                   )}
                   
                   {currentUser.role === 'owner' && (
                     <Link to="/dashboard">
-                      <Button variant="outline" size="sm" className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4" />
-                        Dashboard
+                      <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3">
+                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="hidden sm:inline">Dashboard</span>
                       </Button>
                     </Link>
                   )}
@@ -65,6 +79,13 @@ const Index = () => {
               )}
             </div>
           </div>
+          
+          {/* Mobile role selector */}
+          {currentUser.role !== 'customer' && (
+            <div className="mt-2 sm:hidden">
+              <RoleSelector />
+            </div>
+          )}
         </div>
       </header>
 
