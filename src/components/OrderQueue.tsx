@@ -65,12 +65,6 @@ export function OrderQueue() {
                 <div className="text-6xl font-bold text-warning mb-2">
                   #{currentlyServing.queueNumber}
                 </div>
-                <p className="text-xl font-semibold">{currentlyServing.customerName}</p>
-                <div className="flex justify-center gap-4 mt-4 text-sm text-muted-foreground">
-                  <span>{currentlyServing.items.length} items</span>
-                  <span>•</span>
-                  <span>${currentlyServing.totalAmount.toFixed(2)}</span>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -91,7 +85,6 @@ export function OrderQueue() {
                   <div key={order.id} className="flex items-center justify-between p-3 bg-success/5 rounded-lg border border-success/20">
                     <div>
                       <div className="text-2xl font-bold text-success">#{order.queueNumber}</div>
-                      <p className="font-medium">{order.customerName}</p>
                     </div>
                     <Badge className={getStatusColor(order.status)}>
                       Ready!
@@ -125,11 +118,9 @@ export function OrderQueue() {
                         #{order.queueNumber}
                       </div>
                       <div>
-                        <p className="font-semibold">{order.customerName}</p>
-                        <div className="flex gap-4 text-sm text-muted-foreground">
-                          <span>{order.items.length} items</span>
-                          <span>${order.totalAmount.toFixed(2)}</span>
-                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {order.items.length} items
+                        </p>
                       </div>
                     </div>
                     
