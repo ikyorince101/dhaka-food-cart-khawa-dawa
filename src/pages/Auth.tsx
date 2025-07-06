@@ -74,6 +74,30 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      // Test OTP for development
+      if (otp === '666666') {
+        // Create a test user session
+        const { data, error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              full_name: fullName,
+              phone: phone,
+            }
+          }
+        });
+
+        if (!error) {
+          toast({
+            title: "Welcome!",
+            description: "Test login successful.",
+          });
+          navigate('/');
+          return;
+        }
+      }
+
       const { data, error } = await supabase.auth.verifyOtp({
         email,
         token: otp,
@@ -197,6 +221,9 @@ export default function Auth() {
                   </div>
                   <p className="text-sm text-muted-foreground text-center">
                     Code sent to {email}
+                  </p>
+                  <p className="text-xs text-muted-foreground text-center mt-1">
+                    <span className="text-primary">Test mode:</span> Use 666666 for instant login
                   </p>
                 </div>
                 <Button

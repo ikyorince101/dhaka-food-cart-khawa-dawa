@@ -65,10 +65,29 @@ export function CartFloat() {
   };
 
   const handlePlaceOrder = () => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to place an order.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!customerName.trim()) {
       toast({
         title: "Name Required",
         description: "Please enter your name to place the order.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!customerPhone.trim()) {
+      toast({
+        title: "Phone number required",
+        description: "Please enter your phone number to receive order updates.",
         variant: "destructive",
       });
       return;
@@ -223,25 +242,25 @@ export function CartFloat() {
 
               <div className="space-y-4">
                 {user ? (
-                  <div className="bg-primary/10 rounded-lg p-4 text-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <User className="h-4 w-4" />
-                      <span className="font-medium">Logged in as {user.email}</span>
-                    </div>
-                    <p className="text-muted-foreground">
-                      Your order will be saved to your account for tracking.
-                    </p>
-                    <Button
-                      variant="link" 
-                      size="sm" 
-                      className="p-0 h-auto"
-                      onClick={() => navigate('/my-orders')}
-                    >
-                      View My Orders →
-                    </Button>
-                  </div>
-                ) : (
                   <>
+                    <div className="bg-primary/10 rounded-lg p-4 text-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <User className="h-4 w-4" />
+                        <span className="font-medium">Logged in as {user.email}</span>
+                      </div>
+                      <p className="text-muted-foreground">
+                        Your order will be saved to your account for tracking.
+                      </p>
+                      <Button
+                        variant="link" 
+                        size="sm" 
+                        className="p-0 h-auto"
+                        onClick={() => navigate('/my-orders')}
+                      >
+                        View My Orders →
+                      </Button>
+                    </div>
+                    
                     <div>
                       <Label htmlFor="customerName">Your Name *</Label>
                       <Input
@@ -252,17 +271,35 @@ export function CartFloat() {
                         className="mt-1"
                       />
                     </div>
+                    
                     <div>
-                      <Label htmlFor="customerPhone">Phone Number (Optional)</Label>
+                      <Label htmlFor="customerPhone">Phone Number *</Label>
                       <Input
                         id="customerPhone"
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value)}
                         placeholder="Your phone number"
                         className="mt-1"
+                        required
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Required to receive order updates
+                      </p>
                     </div>
                   </>
+                ) : (
+                  <div className="text-center p-6 bg-muted/50 rounded-lg">
+                    <User className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-3">
+                      Please login to place an order and track your food!
+                    </p>
+                    <Button 
+                      onClick={() => navigate('/auth')}
+                      className="w-full bg-gradient-warm hover:opacity-90"
+                    >
+                      Login to Order
+                    </Button>
+                  </div>
                 )}
               </div>
 
@@ -270,8 +307,9 @@ export function CartFloat() {
                 onClick={handlePlaceOrder}
                 className="w-full bg-gradient-warm hover:opacity-90 text-primary-foreground shadow-warm"
                 size="lg"
+                disabled={!user}
               >
-                Continue to Payment - ${totalAmount.toFixed(2)}
+                {user ? `Continue to Payment - $${totalAmount.toFixed(2)}` : 'Login Required'}
               </Button>
             </>
           )}

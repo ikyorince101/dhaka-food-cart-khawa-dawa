@@ -2,12 +2,8 @@ import React from 'react';
 import { useApp, MENU_ITEMS } from '@/contexts/AppContext';
 import { MenuCard } from '@/components/MenuCard';
 import { CartFloat } from '@/components/CartFloat';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { RoleSelector } from '@/components/RoleSelector';
-import { Button } from '@/components/ui/button';
+import { AppLayout } from '@/components/AppLayout';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
-import { Monitor, Users, TrendingUp } from 'lucide-react';
 
 const Index = () => {
   const { currentUser } = useApp();
@@ -16,78 +12,8 @@ const Index = () => {
   const beverageItems = MENU_ITEMS.filter(item => item.category === 'beverages');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-      {/* Mobile-Friendly Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="container mx-auto px-4 py-3">
-          {/* Main header row */}
-          <div className="flex items-center justify-between">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-warm bg-clip-text text-transparent truncate">
-                Dhaka Street Food
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
-                Authentic Bengali street flavors 🍛
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-2 sm:gap-4">
-              <ThemeToggle />
-              
-              {/* Customer Login Button */}
-              {currentUser.role === 'customer' && (
-                <Link to="/auth">
-                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                    Login
-                  </Button>
-                </Link>
-              )}
-              
-              {/* Role selector for non-customers - hidden on mobile */}
-              <div className="hidden sm:block">
-                <RoleSelector />
-              </div>
-              
-              {/* Quick Access Buttons - Responsive */}
-              {currentUser.role !== 'customer' && (
-                <div className="flex gap-1 sm:gap-2">
-                  <Link to="/queue">
-                    <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3">
-                      <Monitor className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span className="hidden sm:inline">Queue</span>
-                    </Button>
-                  </Link>
-                  
-                  {currentUser.role === 'admin' && (
-                    <Link to="/admin">
-                      <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3">
-                        <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span className="hidden sm:inline">Admin</span>
-                      </Button>
-                    </Link>
-                  )}
-                  
-                  {currentUser.role === 'owner' && (
-                    <Link to="/dashboard">
-                      <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3">
-                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
-                        <span className="hidden sm:inline">Dashboard</span>
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Mobile role selector */}
-          {currentUser.role !== 'customer' && (
-            <div className="mt-2 sm:hidden">
-              <RoleSelector />
-            </div>
-          )}
-        </div>
-      </header>
+    <AppLayout>
+      <div className="bg-gradient-to-br from-background to-secondary">
 
       {/* Hero Section */}
       <section className="py-12 px-4">
@@ -143,26 +69,10 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-card/30 py-8 px-4 mt-16">
-        <div className="container mx-auto text-center">
-          <h4 className="font-semibold mb-2 bg-gradient-warm bg-clip-text text-transparent">
-            Dhaka Street Food
-          </h4>
-          <p className="text-sm text-muted-foreground mb-4">
-            Bringing the authentic taste of Bangladesh to your table
-          </p>
-          <div className="flex justify-center gap-6 text-xs text-muted-foreground">
-            <span>📍 Mobile Food Cart</span>
-            <span>⏰ 11 AM - 10 PM</span>
-            <span>📞 Contact via Order</span>
-          </div>
-        </div>
-      </footer>
-
-      {/* Floating Cart */}
-      <CartFloat />
-    </div>
+        {/* Floating Cart */}
+        <CartFloat />
+      </div>
+    </AppLayout>
   );
 };
 
