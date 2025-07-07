@@ -76,25 +76,46 @@ export default function Auth() {
     try {
       // Test OTP for development
       if (otp === '666666') {
-        // Create a test user session
-        const { data, error } = await supabase.auth.signInWithOtp({
-          email,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              full_name: fullName,
-              phone: phone,
+        try {
+          // Create a test user with signUp for development
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password: 'test123456', // temp password for test
+            options: {
+              data: {
+                full_name: fullName,
+                phone: phone,
+              }
             }
-          }
-        });
-
-        if (!error) {
-          toast({
-            title: "Welcome!",
-            description: "Test login successful.",
           });
-          navigate('/');
-          return;
+
+          if (data.user) {
+            toast({
+              title: "Welcome!",
+              description: "Test login successful.",
+            });
+            navigate('/');
+            return;
+          }
+        } catch (testError) {
+          // If user already exists, try to sign in
+          try {
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email,
+              password: 'test123456'
+            });
+            
+            if (signInData.user) {
+              toast({
+                title: "Welcome!",
+                description: "Test login successful.",
+              });
+              navigate('/');
+              return;
+            }
+          } catch (signInTestError) {
+            // Continue with normal OTP flow
+          }
         }
       }
 
