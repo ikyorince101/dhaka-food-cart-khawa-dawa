@@ -76,46 +76,46 @@ export default function Auth() {
     try {
       // Test OTP for development
       if (otp === '666666') {
-        try {
-          // Create a test user with signUp for development
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password: 'test123456', // temp password for test
-            options: {
-              data: {
-                full_name: fullName,
-                phone: phone,
-              }
+        // For test mode, create or sign in user directly
+        let authResult;
+        
+        // Try signing up first
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password: 'test123456',
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              full_name: fullName,
+              phone: phone,
             }
-          });
+          }
+        });
 
-          if (data.user) {
-            toast({
-              title: "Welcome!",
-              description: "Test login successful.",
-            });
-            navigate('/');
-            return;
+        if (signUpData.user && !signUpError) {
+          // New user created successfully
+          authResult = signUpData;
+        } else {
+          // User might already exist, try signing in
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password: 'test123456'
+          });
+          
+          if (signInData.user && !signInError) {
+            authResult = signInData;
+          } else {
+            throw new Error('Failed to authenticate with test credentials');
           }
-        } catch (testError) {
-          // If user already exists, try to sign in
-          try {
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-              email,
-              password: 'test123456'
-            });
-            
-            if (signInData.user) {
-              toast({
-                title: "Welcome!",
-                description: "Test login successful.",
-              });
-              navigate('/');
-              return;
-            }
-          } catch (signInTestError) {
-            // Continue with normal OTP flow
-          }
+        }
+
+        if (authResult.user) {
+          toast({
+            title: "Welcome!",
+            description: "Test login successful.",
+          });
+          navigate('/');
+          return;
         }
       }
 

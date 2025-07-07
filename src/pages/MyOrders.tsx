@@ -20,6 +20,7 @@ interface Order {
   queue_number: number;
   estimated_time: number;
   created_at: string;
+  check_in_time: string | null;
 }
 
 export default function MyOrders() {
@@ -68,6 +69,39 @@ export default function MyOrders() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/');
+  };
+
+  const handleCheckIn = async (orderId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('customer_check_in', {
+        order_id: orderId
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        toast({
+          title: "Checked In!",
+          description: "We know you're here. Your order will be served shortly.",
+        });
+        // Refresh orders to show updated status
+        if (user) {
+          fetchOrders(user.id);
+        }
+      } else {
+        toast({
+          title: "Check-in failed",
+          description: "Unable to check in. Please ensure your order is being prepared.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to check in. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -197,21 +231,43 @@ export default function MyOrders() {
                   </div>
 
                   {/* Actions */}
-                  {(order.status === 'served' || order.status === 'cancelled') && (
-                    <div className="flex gap-2">
+                  <div className="flex gap-2">
+                    {/* Check-in button for preparing orders */}
+                    {order.status === 'preparing' && !order.check_in_time && (
                       <Button
-                        variant="outline"
+                        className="bg-gradient-warm hover:opacity-90"
                         size="sm"
-                        onClick={() => setSelectedOrderForIssue(order)}
+                        onClick={() => handleCheckIn(order.id)}
                       >
-                        <AlertCircle className="h-4 w-4 mr-2" />
-                        Report Issue
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        I'm Here
                       </Button>
-                      <Button variant="outline" size="sm">
-                        Reorder
-                      </Button>
-                    </div>
-                  )}
+                    )}
+
+                    {/* Show check-in time if checked in */}
+                    {order.check_in_time && (
+                      <Badge variant="secondary" className="text-xs">
+                        Checked in at {new Date(order.check_in_time).toLocaleTimeString()}
+                      </Badge>
+                    )}
+
+                    {/* Report issue button for completed/cancelled orders */}
+                    {(order.status === 'served' || order.status === 'cancelled') && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedOrderForIssue(order)}
+                        >
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          Report Issue
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          Reorder
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
