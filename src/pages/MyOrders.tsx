@@ -36,6 +36,16 @@ export default function MyOrders() {
   }, []);
 
   const checkUser = async () => {
+    // Check for test user first
+    const testUser = localStorage.getItem('test_user');
+    if (testUser) {
+      const parsedTestUser = JSON.parse(testUser);
+      setUser(parsedTestUser);
+      fetchTestOrders();
+      return;
+    }
+
+    // Check Supabase auth
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate('/auth');
@@ -43,6 +53,21 @@ export default function MyOrders() {
     }
     setUser(session.user);
     fetchOrders(session.user.id);
+  };
+
+  const fetchTestOrders = () => {
+    try {
+      const testOrders = JSON.parse(localStorage.getItem('test_orders') || '[]');
+      setOrders(testOrders);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load test orders.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchOrders = async (userId: string) => {
@@ -67,12 +92,37 @@ export default function MyOrders() {
   };
 
   const handleSignOut = async () => {
+    // Clear test user data
+    localStorage.removeItem('test_user');
+    localStorage.removeItem('test_orders');
+    
+    // Sign out from Supabase
     await supabase.auth.signOut();
     navigate('/');
   };
 
   const handleCheckIn = async (orderId: string) => {
     try {
+      // Check if it's a test order
+      const testOrders = JSON.parse(localStorage.getItem('test_orders') || '[]');
+      const testOrderIndex = testOrders.findIndex((order: any) => order.id === orderId);
+      
+      if (testOrderIndex !== -1) {
+        // Handle test order check-in
+        testOrders[testOrderIndex].check_in_time = new Date().toISOString();
+        localStorage.setItem('test_orders', JSON.stringify(testOrders));
+        
+        toast({
+          title: "Checked In!",
+          description: "Test check-in successful! Your order will be served shortly.",
+        });
+        
+        // Refresh test orders
+        fetchTestOrders();
+        return;
+      }
+
+      // Handle real Supabase order check-in
       const { data, error } = await supabase.rpc('customer_check_in', {
         order_id: orderId
       });

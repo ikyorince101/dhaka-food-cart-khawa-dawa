@@ -23,6 +23,17 @@ export function CartFloat() {
 
   React.useEffect(() => {
     const checkUser = async () => {
+      // Check for test user first
+      const testUser = localStorage.getItem('test_user');
+      if (testUser) {
+        const parsedTestUser = JSON.parse(testUser);
+        setUser(parsedTestUser);
+        setCustomerName(parsedTestUser.user_metadata?.full_name || '');
+        setCustomerPhone(parsedTestUser.user_metadata?.phone || '');
+        return;
+      }
+
+      // Check Supabase auth
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
       if (session?.user) {
@@ -108,6 +119,48 @@ export function CartFloat() {
 
   const handlePaymentSuccess = async (paymentData: any) => {
     try {
+      // Check if it's a test user
+      const testUser = localStorage.getItem('test_user');
+      if (testUser) {
+        // For test users, create a simple order object and store in localStorage
+        const testOrder = {
+          id: 'test-order-' + Date.now(),
+          customer_id: JSON.parse(testUser).id,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          items: cart,
+          total_amount: totalAmount,
+          status: 'preparing',
+          queue_number: Math.floor(Math.random() * 50) + 1,
+          estimated_time: Math.ceil(cart.length * 3 + Math.random() * 5),
+          payment_status: 'completed',
+          payment_method: paymentData.method,
+          created_at: new Date().toISOString(),
+          check_in_time: null
+        };
+
+        // Store test order
+        const existingOrders = JSON.parse(localStorage.getItem('test_orders') || '[]');
+        existingOrders.push(testOrder);
+        localStorage.setItem('test_orders', JSON.stringify(existingOrders));
+
+        toast({
+          title: "Test Order Placed!",
+          description: "Your test order has been placed. Go to 'My Orders' to see it and test the 'I'm Here' button.",
+        });
+
+        // Clear form and close modals
+        setCustomerName(JSON.parse(testUser).user_metadata?.full_name || '');
+        setCustomerPhone('');
+        setIsOpen(false);
+        setShowPayment(false);
+        
+        // Clear cart
+        dispatch({ type: 'CLEAR_CART' });
+        return;
+      }
+
+      // Regular Supabase user flow
       if (user) {
         // Save order to database for logged-in users
         const { error } = await supabase

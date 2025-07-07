@@ -12,6 +12,14 @@ export function CustomerHeader() {
 
   useEffect(() => {
     const checkUser = async () => {
+      // Check for test user first
+      const testUser = localStorage.getItem('test_user');
+      if (testUser) {
+        setUser(JSON.parse(testUser));
+        return;
+      }
+
+      // Check Supabase auth
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
     };
@@ -19,7 +27,11 @@ export function CustomerHeader() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        setUser(session?.user || null);
+        // Only update if no test user exists
+        const testUser = localStorage.getItem('test_user');
+        if (!testUser) {
+          setUser(session?.user || null);
+        }
       }
     );
 
@@ -27,6 +39,11 @@ export function CustomerHeader() {
   }, []);
 
   const handleSignOut = async () => {
+    // Clear test user data
+    localStorage.removeItem('test_user');
+    localStorage.removeItem('test_orders');
+    
+    // Sign out from Supabase
     await supabase.auth.signOut();
     toast({
       title: "Signed out successfully",
