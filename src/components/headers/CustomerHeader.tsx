@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { supabase } from '@/integrations/supabase/client';
 import { LogOut, User, Clock, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -11,44 +10,34 @@ export function CustomerHeader() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkUser = async () => {
-      // Check for test user first
-      const testUser = localStorage.getItem('test_user');
-      if (testUser) {
-        setUser(JSON.parse(testUser));
-        return;
+    const checkUser = () => {
+      const userSession = localStorage.getItem('user_session');
+      if (userSession) {
+        setUser(JSON.parse(userSession));
+      } else {
+        setUser(null);
       }
-
-      // Check Supabase auth
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
     };
     checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        // Only update if no test user exists
-        const testUser = localStorage.getItem('test_user');
-        if (!testUser) {
-          setUser(session?.user || null);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    // Listen for changes in localStorage if needed, or rely on page reload for simplicity
+    window.addEventListener('storage', checkUser);
+    return () => {
+      window.removeEventListener('storage', checkUser);
+    };
   }, []);
 
-  const handleSignOut = async () => {
-    // Clear test user data
-    localStorage.removeItem('test_user');
-    localStorage.removeItem('test_orders');
-    
-    // Sign out from Supabase
-    await supabase.auth.signOut();
+  const handleSignOut = () => {
+    localStorage.removeItem('user_session');
+    localStorage.removeItem('test_user'); // Clear test user data if it was used
+    localStorage.removeItem('test_orders'); // Clear test orders data if it was used
+
     toast({
       title: "Signed out successfully",
       description: "You have been logged out.",
     });
+    // Redirect to auth page after sign out
+    window.location.href = '/';
   };
 
   return (

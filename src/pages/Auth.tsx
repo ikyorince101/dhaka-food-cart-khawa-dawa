@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ArrowLeft, Mail, MessageSquare, User, Phone } from 'lucide-react';
+import { ArrowLeft, Mail, User, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Auth() {
@@ -23,18 +21,9 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      // Check for test user
-      const testUser = localStorage.getItem('test_user');
-      if (testUser) {
-        navigate('/');
-        return;
-      }
-
-      // Check Supabase session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+    const checkUser = () => {
+      const userSession = localStorage.getItem('user_session');
+      if (userSession) {
         navigate('/');
       }
     };
@@ -46,23 +35,24 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            full_name: fullName,
-            phone: phone,
-          }
-        }
+      const response = await fetch('http://localhost:3001/api/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone }),
       });
 
-      if (error) throw error;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send OTP');
+      }
 
       setOtpSent(true);
       toast({
         title: "OTP sent!",
-        description: "Check your email for the verification code.",
+        description: "Check your phone for the verification code.",
       });
     } catch (error: any) {
       toast({
@@ -82,49 +72,44 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      // Test OTP for development - simplified approach
-      if (otp === '666666') {
-        console.log('Using test OTP, attempting login with:', { email, fullName, phone });
-        
-        // For test mode, directly create a session without complex auth flow
+      if (otp === '666666') { // Test mode
         const testUser = {
           id: 'test-user-' + Date.now(),
           email: email,
-          user_metadata: {
-            full_name: fullName,
-            phone: phone,
-          }
+          phone: phone,
+          full_name: fullName, // Use full_name for consistency
         };
-
-        // Store test user data in localStorage for development
-        localStorage.setItem('test_user', JSON.stringify(testUser));
-        
-        // Navigate immediately for test mode
+        localStorage.setItem('user_session', JSON.stringify(testUser));
+        localStorage.setItem('test_user', JSON.stringify(testUser)); // Keep for existing logic if needed
         toast({
           title: "Test Login Successful!",
-          description: `Welcome ${fullName || email}! You can now place orders.`,
+          description: `Welcome ${fullName || email || 'Guest'}! You can now place orders.`,
         });
-        
-        // Force page reload to ensure clean state
-        window.location.href = '/';
+        window.location.href = '/'; // Full reload to clear old state
         return;
       }
 
-      const { data, error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'email'
+      const response = await fetch('http://localhost:3001/api/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone, code: otp, email, fullName }),
       });
 
-      if (error) throw error;
+      const data = await response.json();
 
-      if (data.user) {
-        toast({
-          title: "Welcome!",
-          description: "You have successfully signed in.",
-        });
-        navigate('/');
+      if (!response.ok) {
+        throw new Error(data.error || 'Verification failed');
       }
+
+      localStorage.setItem('user_session', JSON.stringify(data.user));
+      toast({
+        title: "Welcome!",
+        description: "You have successfully signed in.",
+      });
+      navigate('/');
+
     } catch (error: any) {
       toast({
         title: "Verification failed",
@@ -139,7 +124,6 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Link to="/" className="flex items-center text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -154,28 +138,14 @@ export default function Auth() {
               Dhaka Street Food
             </CardTitle>
             <CardDescription>
-              Enter your email to receive a verification code
+              Enter your phone number to receive a verification code
             </CardDescription>
           </CardHeader>
           <CardContent>
             {!otpSent ? (
               <form onSubmit={handleSendOTP} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="full-name">Full Name (Optional)</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="full-name"
-                      type="text"
-                      placeholder="Your full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="pl-9"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone (Optional)</Label>
+                  <Label htmlFor="phone">Phone Number</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -185,6 +155,7 @@ export default function Auth() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       className="pl-9"
+                      required
                     />
                   </div>
                 </div>
@@ -200,6 +171,20 @@ export default function Auth() {
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-9"
                       required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="full-name">Full Name (Optional)</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="full-name"
+                      type="text"
+                      placeholder="Your full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="pl-9"
                     />
                   </div>
                 </div>
@@ -232,7 +217,7 @@ export default function Auth() {
                     </InputOTP>
                   </div>
                   <p className="text-sm text-muted-foreground text-center">
-                    Code sent to {email}
+                    Code sent to {phone}
                   </p>
                   <p className="text-xs text-muted-foreground text-center mt-1">
                     <span className="text-primary">Test mode:</span> Use 666666 for instant login
@@ -254,7 +239,7 @@ export default function Auth() {
                     setOtp('');
                   }}
                 >
-                  Change Email
+                  Change Phone Number
                 </Button>
               </form>
             )}
