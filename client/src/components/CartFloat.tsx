@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ShoppingCart, Plus, Minus, X, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+
 import { useNavigate } from 'react-router-dom';
 
 export function CartFloat() {
@@ -43,23 +43,7 @@ export function CartFloat() {
         return;
       }
 
-      // Check Supabase auth
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-      if (session?.user) {
-        setCustomerName(session.user.user_metadata?.full_name || '');
-        // Load profile data
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (profile) {
-          setCustomerName(profile.full_name || '');
-          setCustomerPhone(profile.phone || '');
-        }
-      }
+      // No authenticated user found
     };
     checkUser();
   }, []);

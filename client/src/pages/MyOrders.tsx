@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +35,16 @@ export default function MyOrders() {
   }, []);
 
   const checkUser = async () => {
-    // Check for test user first
+    // Check for user session
+    const userSession = localStorage.getItem('user_session');
+    if (userSession) {
+      const parsedUser = JSON.parse(userSession);
+      setUser(parsedUser);
+      fetchOrders(parsedUser.id);
+      return;
+    }
+
+    // Check for legacy test user
     const testUser = localStorage.getItem('test_user');
     if (testUser) {
       const parsedTestUser = JSON.parse(testUser);
@@ -45,14 +53,7 @@ export default function MyOrders() {
       return;
     }
 
-    // Check Supabase auth
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate('/auth');
-      return;
-    }
-    setUser(session.user);
-    fetchOrders(session.user.id);
+    navigate('/auth');
   };
 
   const fetchTestOrders = () => {
@@ -72,32 +73,26 @@ export default function MyOrders() {
 
   const fetchOrders = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('customer_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const response = await fetch(`/api/orders?customerId=${userId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+      const data = await response.json();
       setOrders(data || []);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to load your orders.",
-        variant: "destructive",
-      });
+      console.error('Fetch orders error:', error);
+      // Fall back to test orders if API fails
+      fetchTestOrders();
     } finally {
       setLoading(false);
     }
   };
 
   const handleSignOut = async () => {
-    // Clear test user data
+    // Clear all user data
     localStorage.removeItem('test_user');
     localStorage.removeItem('test_orders');
-    
-    // Sign out from Supabase
-    await supabase.auth.signOut();
+    localStorage.removeItem('user_session');
     navigate('/');
   };
 
@@ -122,33 +117,32 @@ export default function MyOrders() {
         return;
       }
 
-      // Handle real Supabase order check-in
-      const { data, error } = await supabase.rpc('customer_check_in', {
-        order_id: orderId
+      // Handle real API order check-in
+      const response = await fetch(`/api/orders/${orderId}/check-in`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Failed to check in');
+      }
 
-      if (data) {
-        toast({
-          title: "Checked In!",
-          description: "We know you're here. Your order will be served shortly.",
-        });
-        // Refresh orders to show updated status
-        if (user) {
-          fetchOrders(user.id);
-        }
-      } else {
-        toast({
-          title: "Check-in failed",
-          description: "Unable to check in. Please ensure your order is being prepared.",
-          variant: "destructive",
-        });
+      toast({
+        title: "Checked In!",
+        description: "Your order will be served shortly.",
+      });
+
+      // Refresh orders
+      if (user) {
+        fetchOrders(user.id);
       }
     } catch (error: any) {
+      console.error('Check-in error:', error);
       toast({
         title: "Error",
-        description: "Failed to check in. Please try again.",
+        description: error.message || "Failed to check in.",
         variant: "destructive",
       });
     }

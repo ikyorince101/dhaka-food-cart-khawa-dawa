@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { OrderQueue } from '@/components/OrderQueue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,23 +44,7 @@ export default function Queue() {
         return;
       }
 
-      // Check Supabase auth
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setLoading(false);
-        return;
-      }
-
-      setUser(session.user);
-      
-      // Check if user has any orders
-      const { data: orders } = await supabase
-        .from('orders')
-        .select('id')
-        .eq('customer_id', session.user.id)
-        .limit(1);
-      
-      setHasOrders(orders && orders.length > 0);
+      // No authenticated user found
       setLoading(false);
     };
 

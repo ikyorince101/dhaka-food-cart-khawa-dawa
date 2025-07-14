@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -44,23 +44,36 @@ export function ReportIssueModal({ isOpen, onClose, order, onIssueReported }: Re
     setSubmitting(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      const userSession = localStorage.getItem('user_session');
+      if (!userSession) throw new Error('Not authenticated');
+      
+      const user = JSON.parse(userSession);
 
-      const { error } = await supabase
-        .from('customer_issues')
-        .insert({
-          customer_id: session.user.id,
-          order_id: order.id,
-          issue_type: issueType,
+      const response = await fetch('/api/customer-issues', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerId: user.id,
+          orderId: order.id,
+          issueType,
           description: description.trim(),
-          status: 'open',
           priority: issueType === 'quality_issue' ? 'high' : 'medium'
-        });
+        }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to submit issue');
 
+      toast({
+        title: "Issue Reported",
+        description: "Your issue has been submitted. We'll investigate and get back to you.",
+      });
+      
       onIssueReported();
+      onClose();
+      setIssueType('');
+      setDescription('');
     } catch (error: any) {
       toast({
         title: "Error",
