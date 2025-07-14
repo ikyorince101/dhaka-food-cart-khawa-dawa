@@ -15,6 +15,37 @@ export default function Queue() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // Check for user session first (test or real user)
+      const userSession = localStorage.getItem('user_session');
+      if (userSession) {
+        const parsedUser = JSON.parse(userSession);
+        setUser(parsedUser);
+        
+        // Check for test orders
+        const testOrders = JSON.parse(localStorage.getItem('test_orders') || '[]');
+        if (testOrders.length > 0) {
+          setHasOrders(true);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Check for legacy test user
+      const testUser = localStorage.getItem('test_user');
+      if (testUser) {
+        const parsedTestUser = JSON.parse(testUser);
+        setUser(parsedTestUser);
+        
+        // Check for test orders
+        const testOrders = JSON.parse(localStorage.getItem('test_orders') || '[]');
+        if (testOrders.length > 0) {
+          setHasOrders(true);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Check Supabase auth
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         setLoading(false);

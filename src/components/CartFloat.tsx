@@ -23,7 +23,17 @@ export function CartFloat() {
 
   React.useEffect(() => {
     const checkUser = async () => {
-      // Check for test user first
+      // Check for user session first (test or real user)
+      const userSession = localStorage.getItem('user_session');
+      if (userSession) {
+        const parsedUser = JSON.parse(userSession);
+        setUser(parsedUser);
+        setCustomerName(parsedUser.full_name || parsedUser.user_metadata?.full_name || '');
+        setCustomerPhone(parsedUser.phone || parsedUser.user_metadata?.phone || '');
+        return;
+      }
+
+      // Check for legacy test user
       const testUser = localStorage.getItem('test_user');
       if (testUser) {
         const parsedTestUser = JSON.parse(testUser);
@@ -119,13 +129,16 @@ export function CartFloat() {
 
   const handlePaymentSuccess = async (paymentData: any) => {
     try {
-      // Check if it's a test user
+      // Check if it's a test user (either legacy or new format)
+      const userSession = localStorage.getItem('user_session');
       const testUser = localStorage.getItem('test_user');
-      if (testUser) {
+      
+      if (userSession || testUser) {
         // For test users, create a simple order object and store in localStorage
+        const currentUser = userSession ? JSON.parse(userSession) : JSON.parse(testUser!);
         const testOrder = {
           id: 'test-order-' + Date.now(),
-          customer_id: JSON.parse(testUser).id,
+          customer_id: currentUser.id,
           customer_name: customerName,
           customer_phone: customerPhone,
           items: cart,
@@ -150,7 +163,7 @@ export function CartFloat() {
         });
 
         // Clear form and close modals
-        setCustomerName(JSON.parse(testUser).user_metadata?.full_name || '');
+        setCustomerName(currentUser.full_name || currentUser.user_metadata?.full_name || '');
         setCustomerPhone('');
         setIsOpen(false);
         setShowPayment(false);
