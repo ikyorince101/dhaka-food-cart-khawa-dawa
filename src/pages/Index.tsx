@@ -18,7 +18,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-12 px-4">
         <div className="container mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-warm bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-primary">
             Street Food Paradise
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
