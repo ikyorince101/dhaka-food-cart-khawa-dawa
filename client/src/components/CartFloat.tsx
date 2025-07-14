@@ -113,84 +113,42 @@ export function CartFloat() {
 
   const handlePaymentSuccess = async (paymentData: any) => {
     try {
-      // Check if it's a test user (either legacy or new format)
       const userSession = localStorage.getItem('user_session');
-      const testUser = localStorage.getItem('test_user');
-      
-      if (userSession || testUser) {
-        // For test users, create a simple order object and store in localStorage
-        const currentUser = userSession ? JSON.parse(userSession) : JSON.parse(testUser!);
-        const testOrder = {
-          id: 'test-order-' + Date.now(),
-          customer_id: currentUser.id,
-          customer_name: customerName,
-          customer_phone: customerPhone,
-          items: cart,
-          total_amount: totalAmount,
-          status: 'preparing',
-          queue_number: Math.floor(Math.random() * 50) + 1,
-          estimated_time: Math.ceil(cart.length * 3 + Math.random() * 5),
-          payment_status: 'completed',
-          payment_method: paymentData.method,
-          created_at: new Date().toISOString(),
-          check_in_time: null
-        };
-
-        // Store test order
-        const existingOrders = JSON.parse(localStorage.getItem('test_orders') || '[]');
-        existingOrders.push(testOrder);
-        localStorage.setItem('test_orders', JSON.stringify(existingOrders));
-
-        toast({
-          title: "Test Order Placed!",
-          description: "Your test order has been placed. Go to 'My Orders' to see it and test the 'I'm Here' button.",
-        });
-
-        // Clear form and close modals
-        setCustomerName(currentUser.full_name || currentUser.user_metadata?.full_name || '');
-        setCustomerPhone('');
-        setIsOpen(false);
-        setShowPayment(false);
-        
-        // Clear cart
-        dispatch({ type: 'CLEAR_CART' });
-        return;
+      if (!userSession) {
+        throw new Error('User not authenticated');
       }
 
-      // Regular Supabase user flow
-      if (user) {
-        // Save order to database for logged-in users
-        const { error } = await supabase
-          .from('orders')
-          .insert({
-            customer_id: user.id,
-            items: JSON.stringify(cart),
-            customer_name: customerName,
-            customer_phone: customerPhone || null,
-            total_amount: totalAmount,
-            status: 'pending',
-            queue_number: Math.floor(Math.random() * 100) + 1,
-            estimated_time: Math.ceil(cart.length * 3 + Math.random() * 5),
-            payment_status: 'completed',
-            payment_method: paymentData.method,
-          });
+      const currentUser = JSON.parse(userSession);
 
-        if (error) throw error;
-      } else {
-        // For guest users, use the existing context method
-        dispatch({ 
-          type: 'PLACE_ORDER', 
-          payload: { customerName, customerPhone: customerPhone || undefined } 
-        });
+      // Create order via API
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerId: currentUser.id,
+          customerName: customerName,
+          customerPhone: customerPhone,
+          items: JSON.stringify(cart),
+          totalAmount: totalAmount,
+          paymentMethod: paymentData.method,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to place order');
       }
+
+      const newOrder = await response.json();
 
       toast({
         title: "Order Placed!",
-        description: `Your order has been placed successfully. ${user ? 'Check "My Orders" to track it.' : 'Queue number will be announced shortly.'}`,
+        description: `Your order #${newOrder.queueNumber} has been placed successfully. Check "My Orders" to track it.`,
       });
 
       // Clear form and close modals
-      setCustomerName(user?.user_metadata?.full_name || '');
+      setCustomerName(currentUser.full_name || '');
       setCustomerPhone('');
       setIsOpen(false);
       setShowPayment(false);
@@ -199,6 +157,7 @@ export function CartFloat() {
       dispatch({ type: 'CLEAR_CART' });
       
     } catch (error: any) {
+      console.error('Order placement error:', error);
       toast({
         title: "Error",
         description: "Failed to place order. Please try again.",
