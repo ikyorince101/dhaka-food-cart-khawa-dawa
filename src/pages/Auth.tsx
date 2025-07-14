@@ -35,7 +35,7 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/send-otp', {
+      const response = await fetch('/api/send-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export default function Auth() {
         return;
       }
 
-      const response = await fetch('http://localhost:3001/api/verify-otp', {
+      const response = await fetch('/api/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
