@@ -13,7 +13,7 @@ interface Order {
   id: string;
   items: any;
   customerName: string;
-  totalAmount: number;
+  totalAmount: string | number;
   status: string;
   paymentStatus: string;
   queueNumber: number;
@@ -243,7 +243,7 @@ export default function MyOrders() {
 
                     {/* Order Summary */}
                     <div className="flex justify-between items-center">
-                      <span className="font-semibold text-lg">Total: ${order.totalAmount.toFixed(2)}</span>
+                      <span className="font-semibold text-lg">Total: ${Number(order.totalAmount).toFixed(2)}</span>
                       <div className="text-sm text-muted-foreground">
                         Est. time: {order.estimatedTime} min
                       </div>
