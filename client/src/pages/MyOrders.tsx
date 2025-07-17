@@ -48,7 +48,7 @@ export default function MyOrders() {
   const fetchOrders = async (userId: string) => {
     try {
       const response = await fetch(`/api/orders?customerId=${userId}`);
-      
+
       if (response.ok) {
         const fetchedOrders = await response.json();
         setOrders(fetchedOrders);
@@ -85,7 +85,7 @@ export default function MyOrders() {
           title: "Checked In!",
           description: "You've been checked in! Your order will be served shortly.",
         });
-        
+
         if (user) {
           fetchOrders(user.id);
         }
@@ -243,7 +243,7 @@ export default function MyOrders() {
 
                     {/* Order Summary */}
                     <div className="flex justify-between items-center">
-                      <span className="font-semibold text-lg">Total: ${Number(order.totalAmount).toFixed(2)}</span>
+                      <span className="font-semibold text-lg">Total: ${typeof order.totalAmount === 'number' ? order.totalAmount.toFixed(2) : parseFloat(order.totalAmount).toFixed(2)}</span>
                       <div className="text-sm text-muted-foreground">
                         Est. time: {order.estimatedTime} min
                       </div>
@@ -260,7 +260,7 @@ export default function MyOrders() {
                           I'm Here!
                         </Button>
                       )}
-                      
+
                       {order.status !== 'cancelled' && order.status !== 'served' && (
                         <Button
                           onClick={() => setSelectedOrderForIssue(order)}

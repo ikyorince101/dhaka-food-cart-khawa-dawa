@@ -43,7 +43,6 @@ export default function MenuSection({ selectedCategory }) {
   );
 }
 
-import React from 'react';
 import { useApp, MENU_ITEMS } from '@/contexts/AppContext';
 import { MenuCard } from '@/components/MenuCard';
 import { CartFloat } from '@/components/CartFloat';

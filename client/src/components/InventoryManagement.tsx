@@ -29,13 +29,6 @@ export function InventoryManagement() {
     fetchInventory();
   }, [selectedDate]);
 
-  useEffect(() => {
-    // Auto-initialize inventory if it's empty for today
-    if (isToday && inventory.length === 0) {
-      createDefaultInventory();
-    }
-  }, [inventory, isToday]);
-
   const fetchInventory = async () => {
     setLoading(true);
     try {
@@ -43,6 +36,11 @@ export function InventoryManagement() {
       if (response.ok) {
         const data = await response.json();
         setInventory(data);
+        
+        // Auto-initialize inventory if it's empty for today
+        if (isToday && data.length === 0) {
+          createDefaultInventory();
+        }
       }
     } catch (error) {
       console.error('Failed to fetch inventory:', error);
