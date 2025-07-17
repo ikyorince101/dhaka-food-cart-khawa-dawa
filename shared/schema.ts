@@ -55,9 +55,10 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   customerName: true,
   customerPhone: true,
   totalAmount: true,
-  queueNumber: true,
   estimatedTime: true,
   paymentMethod: true,
+}).extend({
+  totalAmount: z.string().or(z.number()).transform((val) => String(val)),
 });
 
 export const insertCustomerIssueSchema = createInsertSchema(customerIssues).pick({

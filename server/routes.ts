@@ -146,6 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const order = await storage.createOrder({
         ...orderData,
+        totalAmount: String(orderData.totalAmount),
         queueNumber,
       });
       
