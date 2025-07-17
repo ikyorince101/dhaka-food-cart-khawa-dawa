@@ -187,7 +187,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const getSalesData = (): SalesData => {
     const completedOrders = state.orders.filter(order => order.status === 'served');
-    const totalSales = completedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+    const totalSales = completedOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
     const totalOrders = completedOrders.length;
     const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
@@ -199,12 +199,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const existing = itemSales.get(key);
         if (existing) {
           existing.quantity += cartItem.quantity;
-          existing.revenue += cartItem.menuItem.price * cartItem.quantity;
+          existing.revenue += Number(cartItem.menuItem.price) * cartItem.quantity;
         } else {
           itemSales.set(key, {
             item: cartItem.menuItem,
             quantity: cartItem.quantity,
-            revenue: cartItem.menuItem.price * cartItem.quantity
+            revenue: Number(cartItem.menuItem.price) * cartItem.quantity
           });
         }
       });

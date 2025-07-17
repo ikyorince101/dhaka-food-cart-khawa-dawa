@@ -123,7 +123,7 @@ export function OrderQueue() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="text-right">
                       <Badge className={getStatusColor(order.status)}>
                         Position {index + 1}

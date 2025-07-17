@@ -19,7 +19,7 @@ export interface Order {
   items: CartItem[];
   customerName: string;
   customerPhone?: string;
-  totalAmount: number;
+  totalAmount: number | string;
   status: 'pending' | 'preparing' | 'ready' | 'served' | 'cancelled';
   orderTime: Date;
   estimatedTime: number; // in minutes

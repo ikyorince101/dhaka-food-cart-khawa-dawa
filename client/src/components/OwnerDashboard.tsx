@@ -16,7 +16,7 @@ export function OwnerDashboard() {
 
   const todaySales = todayOrders
     .filter(order => order.status === 'served')
-    .reduce((sum, order) => sum + order.totalAmount, 0);
+    .reduce((sum, order) => sum + Number(order.totalAmount), 0);
 
   const activeOrders = orders.filter(order => 
     ['pending', 'preparing', 'ready'].includes(order.status)
