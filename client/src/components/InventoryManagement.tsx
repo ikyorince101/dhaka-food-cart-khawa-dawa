@@ -22,6 +22,13 @@ export function InventoryManagement() {
     fetchInventory();
   }, [selectedDate]);
 
+  useEffect(() => {
+    // Auto-initialize inventory if it's empty for today
+    if (isToday && inventory.length === 0) {
+      createDefaultInventory();
+    }
+  }, [inventory, isToday]);
+
   const fetchInventory = async () => {
     setLoading(true);
     try {
@@ -58,6 +65,14 @@ export function InventoryManagement() {
 
     await Promise.all(promises);
     fetchInventory();
+  };
+
+  const adjustQuantity = async (menuItemId: string, change: number) => {
+    const itemInventory = getInventoryForItem(menuItemId);
+    if (!itemInventory) return;
+
+    const newQuantity = Math.max(0, itemInventory.availableQuantity + change);
+    await updateQuantity(menuItemId, newQuantity);
   };
 
   const updateAvailability = async (menuItemId: string, isAvailable: boolean) => {
@@ -199,18 +214,27 @@ export function InventoryManagement() {
                           <div>
                             <Label htmlFor={`quantity-${item.id}`}>Quantity</Label>
                             <div className="flex items-center gap-2 mt-1">
-                              <Input
-                                id={`quantity-${item.id}`}
-                                type="number"
-                                min="0"
-                                value={itemInventory.availableQuantity}
-                                onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
-                                className="flex-1"
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => adjustQuantity(item.id, -1)}
+                                disabled={!itemInventory.isAvailable || isPast || itemInventory.availableQuantity <= 0}
+                                className="h-8 w-8 p-0"
+                              >
+                                -
+                              </Button>
+                              <div className="flex-1 text-center font-medium">
+                                {itemInventory.availableQuantity} / {itemInventory.defaultQuantity}
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => adjustQuantity(item.id, 1)}
                                 disabled={!itemInventory.isAvailable || isPast}
-                              />
-                              <span className="text-sm text-muted-foreground">
-                                / {itemInventory.defaultQuantity}
-                              </span>
+                                className="h-8 w-8 p-0"
+                              >
+                                +
+                              </Button>
                             </div>
                           </div>
 

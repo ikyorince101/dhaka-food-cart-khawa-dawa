@@ -295,10 +295,18 @@ interface MenuInventory {
 }
 
 const fetchTodayInventory = async (): Promise<MenuInventory[]> => {
-    // Replace with your actual API endpoint
-    const response = await fetch('/api/inventory/today');
-    if (!response.ok) {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const response = await fetch(`/api/menu-inventory/${today}`);
+      if (!response.ok) {
         throw new Error('Failed to fetch inventory');
+      }
+      const inventory = await response.json();
+
+      // Auto-initialize if empty (this will be handled by the server now)
+      return inventory;
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+      return [];
     }
-    return response.json();
-};
+  };

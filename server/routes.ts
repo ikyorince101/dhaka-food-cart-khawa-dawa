@@ -259,7 +259,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/menu-inventory/:date", async (req, res) => {
     try {
       const { date } = req.params;
-      const inventory = await storage.getMenuInventoryForDate(date);
+      let inventory = await storage.getMenuInventoryForDate(date);
+      
+      // Auto-initialize inventory with 50 items each if none exists for today
+      const today = new Date().toISOString().split('T')[0];
+      if (date === today && inventory.length === 0) {
+        const MENU_ITEMS = [
+          { id: 'fuchka', name: 'Fuchka' },
+          { id: 'chotpoti', name: 'Chotpoti' },
+          { id: 'jhalmuri', name: 'Jhalmuri' },
+          { id: 'fruit-chaat', name: 'Fruit Chaat' },
+          { id: 'tea', name: 'Chai' },
+          { id: 'mango-lassi', name: 'Mango Lassi' }
+        ];
+
+        const initPromises = MENU_ITEMS.map(item => 
+          storage.createOrUpdateMenuInventory({
+            menuItemId: item.id,
+            date: date,
+            defaultQuantity: 50,
+            availableQuantity: 50,
+            isAvailable: true
+          })
+        );
+
+        await Promise.all(initPromises);
+        inventory = await storage.getMenuInventoryForDate(date);
+      }
+      
       res.json(inventory);
     } catch (error) {
       console.error("Get menu inventory error:", error);
