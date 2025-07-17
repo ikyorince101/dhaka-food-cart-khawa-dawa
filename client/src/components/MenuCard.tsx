@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Minus } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface MenuCardProps {
   item: MenuItem;
@@ -12,6 +13,7 @@ interface MenuCardProps {
 
 export function MenuCard({ item }: MenuCardProps) {
   const { cart, dispatch } = useApp();
+  const { toast } = useToast();
 
   const cartItem = cart.find(cartItem => cartItem.menuItem.id === item.id);
   const quantity = cartItem?.quantity || 0;
