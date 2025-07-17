@@ -265,12 +265,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const today = new Date().toISOString().split('T')[0];
       if (date === today && inventory.length === 0) {
         const MENU_ITEMS = [
-          { id: 'fuchka', name: 'Fuchka' },
+          { id: 'fuchka', name: 'Regular Fuchka' },
+          { id: 'doi-fuchka', name: 'Doi Fuchka' },
+          { id: 'panipuri', name: 'Panipuri' },
+          { id: 'bhelpuri', name: 'Bhelpuri' },
           { id: 'chotpoti', name: 'Chotpoti' },
           { id: 'jhalmuri', name: 'Jhalmuri' },
-          { id: 'fruit-chaat', name: 'Fruit Chaat' },
+          { id: 'fruit-chaat', name: 'Mango Chaat' },
+          { id: 'guava-chaat', name: 'Guava Chaat' },
           { id: 'tea', name: 'Chai' },
-          { id: 'mango-lassi', name: 'Mango Lassi' }
+          { id: 'mango-lassi', name: 'Mango Lassi' },
+          { id: 'water', name: 'Water' },
+          { id: 'soda', name: 'Soda' },
+          { id: 'singara', name: 'Singara' }
         ];
 
         const initPromises = MENU_ITEMS.map(item => 

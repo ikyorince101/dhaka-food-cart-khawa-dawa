@@ -12,11 +12,29 @@ interface MenuCardProps {
 
 export function MenuCard({ item }: MenuCardProps) {
   const { cart, dispatch } = useApp();
-  
+
   const cartItem = cart.find(cartItem => cartItem.menuItem.id === item.id);
   const quantity = cartItem?.quantity || 0;
 
   const handleAddToCart = () => {
+    if (!item.available) {
+      toast({
+        title: "Item Unavailable", 
+        description: `${item.name} is currently not available.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check available quantity if it exists
+    if (item.availableQuantity !== undefined && item.availableQuantity <= 0) {
+      toast({
+        title: "Out of Stock",
+        description: `${item.name} is currently out of stock.`,
+        variant: "destructive",
+      });
+      return;
+    }
     dispatch({ type: 'ADD_TO_CART', payload: { menuItem: item, quantity: 1 } });
   };
 
@@ -46,12 +64,12 @@ export function MenuCard({ item }: MenuCardProps) {
             </Badge>
           )}
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-xl font-bold bg-gradient-warm bg-clip-text text-transparent">
             ${item.price.toFixed(2)}
           </span>
-          
+
           {item.available && (
             quantity > 0 ? (
               <div className="flex items-center gap-2">
@@ -84,7 +102,7 @@ export function MenuCard({ item }: MenuCardProps) {
             )
           )}
         </div>
-        
+
         {!item.available && (
           <p className="text-sm text-muted-foreground mt-2">
             Currently unavailable

@@ -9,19 +9,19 @@ import fruitChaat from '@/assets/fruit-chaat.jpg';
 
 // Menu data
 export const MENU_ITEMS: MenuItem[] = [
-  { id: '1', name: 'Regular Fuchka', price: 8.00, image: fuchkaImg, category: 'snacks', available: true },
-  { id: '2', name: 'Doi Fuchka', price: 8.00, image: fuchkaImg, category: 'snacks', available: true },
-  { id: '3', name: 'Panipuri', price: 8.00, image: fuchkaImg, category: 'snacks', available: true },
-  { id: '4', name: 'Bhelpuri', price: 8.00, image: jhalmuri, category: 'snacks', available: true },
-  { id: '5', name: 'Chotpoti', price: 8.00, image: chotpotiImg, category: 'snacks', available: true },
-  { id: '6', name: 'Jhalmuri', price: 7.00, image: jhalmuri, category: 'snacks', available: true },
-  { id: '7', name: 'Mango Chaat', price: 7.00, image: fruitChaat, category: 'snacks', available: true },
-  { id: '8', name: 'Guava Chaat', price: 7.00, image: fruitChaat, category: 'snacks', available: true },
-  { id: '9', name: 'Tea', price: 1.50, image: teaImg, category: 'beverages', available: true },
-  { id: '10', name: 'Mango Lassi', price: 3.50, image: mangoLassi, category: 'beverages', available: true },
-  { id: '11', name: 'Water', price: 1.00, image: teaImg, category: 'beverages', available: true },
-  { id: '12', name: 'Soda', price: 2.00, image: teaImg, category: 'beverages', available: true },
-  { id: '13', name: 'Singara', price: 2.50, image: chotpotiImg, category: 'snacks', available: true },
+  { id: 'fuchka', name: 'Regular Fuchka', price: 8.00, image: fuchkaImg, category: 'snacks', available: true },
+  { id: 'doi-fuchka', name: 'Doi Fuchka', price: 8.00, image: fuchkaImg, category: 'snacks', available: true },
+  { id: 'panipuri', name: 'Panipuri', price: 8.00, image: fuchkaImg, category: 'snacks', available: true },
+  { id: 'bhelpuri', name: 'Bhelpuri', price: 8.00, image: jhalmuri, category: 'snacks', available: true },
+  { id: 'chotpoti', name: 'Chotpoti', price: 8.00, image: chotpotiImg, category: 'snacks', available: true },
+  { id: 'jhalmuri', name: 'Jhalmuri', price: 7.00, image: jhalmuri, category: 'snacks', available: true },
+  { id: 'fruit-chaat', name: 'Mango Chaat', price: 7.00, image: fruitChaat, category: 'snacks', available: true },
+  { id: 'guava-chaat', name: 'Guava Chaat', price: 7.00, image: fruitChaat, category: 'snacks', available: true },
+  { id: 'tea', name: 'Chai', price: 1.50, image: teaImg, category: 'beverages', available: true },
+  { id: 'mango-lassi', name: 'Mango Lassi', price: 3.50, image: mangoLassi, category: 'beverages', available: true },
+  { id: 'water', name: 'Water', price: 1.00, image: teaImg, category: 'beverages', available: true },
+  { id: 'soda', name: 'Soda', price: 2.00, image: teaImg, category: 'beverages', available: true },
+  { id: 'singara', name: 'Singara', price: 2.50, image: chotpotiImg, category: 'snacks', available: true },
 ];
 
 // Dummy orders for testing

@@ -7,6 +7,46 @@ import { Clock, Users, CheckCircle } from 'lucide-react';
 export function OrderQueue() {
   const { orders } = useApp();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const user = JSON.parse(localStorage.getItem('user_session') || '{}');
+        let response;
+
+        if (user.id) {
+          // Fetch orders for the specific customer
+          response = await fetch(`/api/orders?customerId=${user.id}`);
+        } else {
+          // Fallback to test orders from localStorage
+          const testOrders = JSON.parse(localStorage.getItem('test_orders') || '[]');
+          setOrders(testOrders);
+          setLoading(false);
+          return;
+        }
+
+        if (response && response.ok) {
+          const fetchedOrders = await response.json();
+          setOrders(fetchedOrders);
+        }
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        // Fallback to test orders
+        const testOrders = JSON.parse(localStorage.getItem('test_orders') || '[]');
+        setOrders(testOrders);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+
+    // Set up polling for real-time updates
+    const interval = setInterval(fetchOrders, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {

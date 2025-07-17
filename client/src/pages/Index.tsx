@@ -1,3 +1,48 @@
+import React, { useState, useEffect } from 'react';
+import { MenuCard } from '@/components/MenuCard';
+import { CartFloat } from '@/components/CartFloat';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useApp } from '@/contexts/AppContext';
+
+export default function MenuSection({ selectedCategory }) {
+  const { availableMenuItems, dispatch } = useApp();
+
+  // Fetch inventory on component mount
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const response = await fetch(`/api/menu-inventory/${today}`);
+        if (response.ok) {
+          const inventory = await response.json();
+          dispatch({ type: 'SET_INVENTORY', payload: inventory });
+        }
+      } catch (error) {
+        console.error('Failed to fetch inventory:', error);
+      }
+    };
+
+    fetchInventory();
+  }, [dispatch]);
+
+  const filteredItems = availableMenuItems.filter(item => 
+    (selectedCategory === 'all' || item.category === selectedCategory) && item.available
+  );
+
+  return (
+    <section className="py-8 px-4">
+      <div className="container mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredItems.map((item) => (
+            <MenuCard key={item.id} item={item} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 import React from 'react';
 import { useApp, MENU_ITEMS } from '@/contexts/AppContext';
 import { MenuCard } from '@/components/MenuCard';

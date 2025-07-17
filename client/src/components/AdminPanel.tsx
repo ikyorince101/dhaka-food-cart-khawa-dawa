@@ -4,9 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ClipboardList, Clock, CheckCircle, Trash2, RefreshCw } from 'lucide-react';
+import { ClipboardList, Clock, CheckCircle, Trash2, RefreshCw, Play, Warehouse } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Warehouse } from 'lucide-react';
 import { InventoryManagement } from './InventoryManagement';
 
 export function AdminPanel() {
@@ -158,7 +157,7 @@ export function AdminPanel() {
             </div>
 
             <div className="flex justify-between items-center pt-2 border-t">
-              <span className="font-semibold">Total: ${Number(order.totalAmount).toFixed(2)}</span>
+              <span className="font-semibold">Total: ${Number(order.totalAmount || 0).toFixed(2)}</span>
               {order.customerPhone && (
                 <span className="text-sm text-muted-foreground">{order.customerPhone}</span>
               )}
