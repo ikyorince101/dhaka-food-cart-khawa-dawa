@@ -72,6 +72,8 @@ interface AppState {
   orders: Order[];
   currentUser: { role: UserRole; name: string };
   isDarkMode: boolean;
+  menuInventory: MenuInventory[];
+  availableMenuItems: MenuItem[];
 }
 
 type AppAction = 
@@ -82,13 +84,38 @@ type AppAction =
   | { type: 'UPDATE_ORDER_STATUS'; payload: { orderId: string; status: Order['status'] } }
   | { type: 'CANCEL_ORDER'; payload: string }
   | { type: 'TOGGLE_THEME' }
-  | { type: 'SET_USER_ROLE'; payload: UserRole };
+  | { type: 'SET_USER_ROLE'; payload: UserRole }
+  | { type: 'SET_INVENTORY'; payload: MenuInventory[] };
+
+const getAvailableMenuItems = (inventory: MenuInventory[]): MenuItem[] => {
+  const today = new Date().toISOString().split('T')[0];
+
+  return MENU_ITEMS.map(item => {
+    const todayInventory = inventory.find(inv => 
+      inv.menuItemId === item.id && inv.date === today
+    );
+
+    if (todayInventory) {
+      return {
+        ...item,
+        available: todayInventory.isAvailable && todayInventory.availableQuantity > 0,
+        availableQuantity: todayInventory.availableQuantity,
+        defaultQuantity: todayInventory.defaultQuantity
+      };
+    }
+
+    // Default to available if no inventory record exists
+    return { ...item, available: true };
+  });
+};
 
 const initialState: AppState = {
   cart: [],
   orders: DUMMY_ORDERS,
   currentUser: { role: 'customer', name: 'Guest' },
   isDarkMode: false,
+  menuInventory: [],
+  availableMenuItems: MENU_ITEMS,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -168,6 +195,13 @@ function appReducer(state: AppState, action: AppAction): AppState {
           role: action.payload,
           name: action.payload === 'admin' ? 'Admin' : action.payload === 'owner' ? 'Owner' : 'Guest'
         }
+      };
+
+    case 'SET_INVENTORY':
+      return {
+        ...state,
+        menuInventory: action.payload,
+        availableMenuItems: getAvailableMenuItems(action.payload)
       };
 
     default:
@@ -251,3 +285,20 @@ export function useApp() {
   }
   return context;
 }
+
+interface MenuInventory {
+    menuItemId: string;
+    date: string;
+    isAvailable: boolean;
+    availableQuantity: number;
+    defaultQuantity: number;
+}
+
+const fetchTodayInventory = async (): Promise<MenuInventory[]> => {
+    // Replace with your actual API endpoint
+    const response = await fetch('/api/inventory/today');
+    if (!response.ok) {
+        throw new Error('Failed to fetch inventory');
+    }
+    return response.json();
+};

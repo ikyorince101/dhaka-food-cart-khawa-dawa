@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ClipboardList, Clock, CheckCircle, XCircle, Play, Trash2, RefreshCw } from 'lucide-react';
+import { ClipboardList, Clock, CheckCircle, Trash2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Warehouse } from 'lucide-react';
+import { InventoryManagement } from './InventoryManagement';
 
 export function AdminPanel() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -56,13 +58,13 @@ export function AdminPanel() {
       if (!response.ok) throw new Error('Failed to update order');
 
       await fetchOrders();
-      
+
       const statusMessages = {
         'preparing': 'Order is now being prepared',
         'ready': 'Order is ready for pickup',
         'served': 'Order has been served'
       };
-      
+
       toast({
         title: "Order Updated",
         description: statusMessages[status] || "Order status updated",
@@ -140,7 +142,7 @@ export function AdminPanel() {
             </Badge>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <div className="space-y-3">
             <div>
@@ -154,7 +156,7 @@ export function AdminPanel() {
                 ))}
               </ul>
             </div>
-            
+
             <div className="flex justify-between items-center pt-2 border-t">
               <span className="font-semibold">Total: ${Number(order.totalAmount).toFixed(2)}</span>
               {order.customerPhone && (
@@ -174,7 +176,7 @@ export function AdminPanel() {
                     Start Preparing
                   </Button>
                 )}
-                
+
                 {order.status === 'preparing' && (
                   <Button
                     onClick={() => handleStatusUpdate(order.id, 'ready')}
@@ -185,7 +187,7 @@ export function AdminPanel() {
                     Mark Ready
                   </Button>
                 )}
-                
+
                 {order.status === 'ready' && (
                   <Button
                     onClick={() => handleStatusUpdate(order.id, 'served')}
@@ -282,6 +284,10 @@ export function AdminPanel() {
               <CheckCircle className="h-4 w-4" />
               Completed ({completedOrders.length})
             </TabsTrigger>
+            <TabsTrigger value="inventory" className="flex items-center gap-2">
+              <Warehouse className="h-4 w-4" />
+              Inventory
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="active" className="space-y-6">
@@ -376,6 +382,10 @@ export function AdminPanel() {
               )}
             </div>
           </TabsContent>
+
+        <TabsContent value="inventory">
+          <InventoryManagement />
+        </TabsContent>
         </Tabs>
       </div>
     </div>

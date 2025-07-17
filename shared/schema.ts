@@ -42,6 +42,18 @@ export const customerIssues = pgTable("customer_issues", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Menu inventory table for tracking daily availability
+export const menuInventory = pgTable("menu_inventory", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  menuItemId: text("menu_item_id").notNull(), // references the MenuItem id from frontend
+  date: text("date").notNull(), // format: YYYY-MM-DD
+  defaultQuantity: integer("default_quantity").notNull().default(50),
+  availableQuantity: integer("available_quantity").notNull(),
+  isAvailable: boolean("is_available").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
@@ -69,6 +81,14 @@ export const insertCustomerIssueSchema = createInsertSchema(customerIssues).pick
   priority: true,
 });
 
+export const insertMenuInventorySchema = createInsertSchema(menuInventory).pick({
+  menuItemId: true,
+  date: true,
+  defaultQuantity: true,
+  availableQuantity: true,
+  isAvailable: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -76,3 +96,5 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof orders.$inferSelect;
 export type InsertCustomerIssue = z.infer<typeof insertCustomerIssueSchema>;
 export type CustomerIssue = typeof customerIssues.$inferSelect;
+export type InsertMenuInventory = z.infer<typeof insertMenuInventorySchema>;
+export type MenuInventory = typeof menuInventory.$inferSelect;

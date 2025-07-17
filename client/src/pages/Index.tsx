@@ -5,11 +5,17 @@ import { CartFloat } from '@/components/CartFloat';
 import { AppLayout } from '@/components/AppLayout';
 import { Badge } from '@/components/ui/badge';
 
-const Index = () => {
-  const { currentUser } = useApp();
+export default function Index() {
+  const { cart, availableMenuItems } = useApp();
 
-  const snackItems = MENU_ITEMS.filter(item => item.category === 'snacks');
-  const beverageItems = MENU_ITEMS.filter(item => item.category === 'beverages');
+  const categories = ['snacks', 'beverages', 'main'] as const;
+
+  const getMenuItemsByCategory = (category: string) => {
+    return availableMenuItems.filter(item => item.category === category);
+  };
+
+  const snackItems = getMenuItemsByCategory('snacks');
+  const beverageItems = getMenuItemsByCategory('beverages');
 
   return (
     <AppLayout>
@@ -25,7 +31,7 @@ const Index = () => {
             Experience the authentic flavors of Dhaka's vibrant street food culture. 
             Fresh ingredients, traditional recipes, and the warmth of Bengali hospitality.
           </p>
-          
+
           <div className="flex justify-center gap-4 text-sm text-muted-foreground">
             <Badge variant="secondary" className="bg-success/10 text-success">
               ✓ Fresh Daily
@@ -75,5 +81,3 @@ const Index = () => {
     </AppLayout>
   );
 };
-
-export default Index;

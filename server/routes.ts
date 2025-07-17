@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertOrderSchema, insertCustomerIssueSchema } from "@shared/schema";
+import { insertUserSchema, insertOrderSchema, insertCustomerIssueSchema, insertMenuInventorySchema } from "@shared/schema";
 import { z } from "zod";
 import twilio from "twilio";
 
@@ -149,6 +149,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalAmount: String(orderData.totalAmount),
         queueNumber,
       });
+
+      // Decrement inventory for ordered items
+      const today = new Date().toISOString().split('T')[0];
+      const items = typeof orderData.items === 'string' ? JSON.parse(orderData.items) : orderData.items;
+      
+      for (const item of items) {
+        await storage.decrementMenuItemQuantity(
+          item.menuItem.id,
+          today,
+          item.quantity
+        );
+      }
       
       res.status(201).json(order);
     } catch (error) {
@@ -240,6 +252,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Update customer issue status error:", error);
       res.status(500).json({ error: "Failed to update customer issue status" });
+    }
+  });
+
+  // Menu inventory routes
+  app.get("/api/menu-inventory/:date", async (req, res) => {
+    try {
+      const { date } = req.params;
+      const inventory = await storage.getMenuInventoryForDate(date);
+      res.json(inventory);
+    } catch (error) {
+      console.error("Get menu inventory error:", error);
+      res.status(500).json({ error: "Failed to fetch menu inventory" });
+    }
+  });
+
+  app.post("/api/menu-inventory", async (req, res) => {
+    try {
+      const inventoryData = insertMenuInventorySchema.parse(req.body);
+      const inventory = await storage.createOrUpdateMenuInventory(inventoryData);
+      res.json(inventory);
+    } catch (error) {
+      console.error("Create/update menu inventory error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid inventory data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create/update menu inventory" });
+    }
+  });
+
+  app.patch("/api/menu-inventory/:menuItemId/:date", async (req, res) => {
+    try {
+      const { menuItemId, date } = req.params;
+      const { isAvailable, availableQuantity } = req.body;
+      
+      const inventory = await storage.updateMenuItemAvailability(
+        menuItemId, 
+        date, 
+        isAvailable, 
+        availableQuantity
+      );
+      
+      if (!inventory) {
+        return res.status(404).json({ error: "Menu inventory not found" });
+      }
+      
+      res.json(inventory);
+    } catch (error) {
+      console.error("Update menu availability error:", error);
+      res.status(500).json({ error: "Failed to update menu availability" });
     }
   });
 

@@ -6,6 +6,19 @@ export interface MenuItem {
   category: 'snacks' | 'beverages' | 'main';
   description?: string;
   available: boolean;
+  availableQuantity?: number;
+  defaultQuantity?: number;
+}
+
+export interface MenuInventory {
+  id: string;
+  menuItemId: string;
+  date: string;
+  defaultQuantity: number;
+  availableQuantity: number;
+  isAvailable: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CartItem {
