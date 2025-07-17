@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,14 @@ export function InventoryManagement() {
   });
   const [inventory, setInventory] = useState<MenuInventory[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  const isToday = selectedDate === getTodayDate();
+  const isPast = new Date(selectedDate) < new Date(getTodayDate());
 
   useEffect(() => {
     fetchInventory();
@@ -82,7 +89,7 @@ export function InventoryManagement() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isAvailable })
       });
-      
+
       if (response.ok) {
         fetchInventory();
       }
@@ -101,7 +108,7 @@ export function InventoryManagement() {
           isAvailable: quantity > 0
         })
       });
-      
+
       if (response.ok) {
         fetchInventory();
       }
@@ -118,29 +125,22 @@ export function InventoryManagement() {
     if (!itemInventory) {
       return <Badge variant="secondary">Not Set</Badge>;
     }
-    
+
     if (!itemInventory.isAvailable) {
       return <Badge variant="destructive">Unavailable</Badge>;
     }
-    
+
     if (itemInventory.availableQuantity === 0) {
       return <Badge variant="destructive">Out of Stock</Badge>;
     }
-    
+
     if (itemInventory.availableQuantity < 10) {
       return <Badge variant="outline" className="border-warning text-warning">Low Stock</Badge>;
     }
-    
+
     return <Badge variant="default" className="bg-success text-success-foreground">Available</Badge>;
   };
 
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
-  const isToday = selectedDate === getTodayDate();
-  const isPast = new Date(selectedDate) < new Date(getTodayDate());
 
   return (
     <div className="space-y-6">
@@ -185,7 +185,7 @@ export function InventoryManagement() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {MENU_ITEMS.map((item) => {
                 const itemInventory = getInventoryForItem(item.id);
-                
+
                 return (
                   <Card key={item.id} className="relative">
                     <CardContent className="p-4">
