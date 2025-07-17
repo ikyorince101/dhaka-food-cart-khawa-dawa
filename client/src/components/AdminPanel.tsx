@@ -156,7 +156,7 @@ export function AdminPanel() {
             </div>
             
             <div className="flex justify-between items-center pt-2 border-t">
-              <span className="font-semibold">Total: ${order.totalAmount.toFixed(2)}</span>
+              <span className="font-semibold">Total: ${Number(order.totalAmount).toFixed(2)}</span>
               {order.customerPhone && (
                 <span className="text-sm text-muted-foreground">{order.customerPhone}</span>
               )}
