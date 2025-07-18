@@ -76,7 +76,7 @@ export default function MyOrders() {
 
   const handleCheckIn = async (orderId: string) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}/checkin`, {
+      const response = await fetch(`/api/orders/${orderId}/check-in`, {
         method: 'PATCH',
       });
 

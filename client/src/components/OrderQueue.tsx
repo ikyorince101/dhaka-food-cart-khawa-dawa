@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Users, CheckCircle } from 'lucide-react';
 
 export function OrderQueue() {
-  const { orders } = useApp();
+  const [orders, setOrders] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [loading, setLoading] = useState(true);
 
