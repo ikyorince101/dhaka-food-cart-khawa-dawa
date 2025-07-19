@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+ :root {
+  --background: 20 20% 98%;
+  --foreground: 20 15% 10%;
+  --card: 20 20% 96%;
+  --card-foreground: 20 15% 10%;
+  --popover: 20 20% 96%;
+  --popover-foreground: 20 15% 10%;
+  --primary: 355 80% 55%;
+  --primary-foreground: 20 20% 98%;
+  --primary-glow: 355 85% 65%;
+  --secondary: 15 65% 90%;
+  --secondary-foreground: 20 15% 10%;
+  --muted: 15 25% 92%;
+  --muted-foreground: 20 10% 45%;
+  --accent: 140 70% 45%;
+  --accent-foreground: 20 20% 98%;
+  --accent-glow: 140 75% 55%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 20 20% 98%;
+  --success: 140 80% 40%;
+  --success-foreground: 20 20% 98%;
+  --warning: 35 90% 55%;
+  --warning-foreground: 20 20% 98%;
+  --border: 20 15% 88%;
+  --input: 20 15% 85%;
+  --ring: 355 80% 55%;
+  --radius: 0.75rem;
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+  --sidebar-background: 20 20% 96%;
+  --sidebar-foreground: 20 15% 10%;
+  --sidebar-primary: 355 80% 55%;
+  --sidebar-primary-foreground: 20 20% 98%;
+  --sidebar-accent: 140 70% 45%;
+  --sidebar-accent-foreground: 20 20% 98%;
+  --sidebar-border: 20 15% 88%;
+  --sidebar-ring: 355 80% 55%;
+  
+  /* Gradients */
+  --gradient-warm: linear-gradient(135deg, hsl(355 80% 55%), hsl(355 85% 65%));
+  --gradient-spice: linear-gradient(135deg, hsl(25 75% 60%), hsl(35 90% 55%));
+  --gradient-fresh: linear-gradient(135deg, hsl(140 70% 45%), hsl(140 75% 55%));
+  
+  /* Shadows */
+  --shadow-warm: 0 10px 15px -3px hsla(355, 80%, 55%, 0.1), 0 4px 6px -4px hsla(355, 80%, 55%, 0.1);
+  --shadow-spice: 0 10px 25px -5px hsla(25, 75%, 60%, 0.2), 0 4px 10px -2px hsla(25, 75%, 60%, 0.1);
+ }
+ .dark {
+  --background: 15 25% 8%;
+  --foreground: 35 15% 95%;
+  --card: 15 20% 12%;
+  --card-foreground: 35 15% 95%;
+  --popover: 15 20% 12%;
+  --popover-foreground: 35 15% 95%;
+  --primary: 45 75% 65%;
+  --primary-foreground: 15 25% 8%;
+  --primary-glow: 45 80% 75%;
+  --secondary: 15 25% 20%;
+  --secondary-foreground: 35 15% 95%;
+  --muted: 15 15% 18%;
+  --muted-foreground: 25 10% 65%;
+  --accent: 140 25% 25%;
+  --accent-foreground: 35 15% 95%;
+  --accent-glow: 140 30% 35%;
+  --success: 140 50% 55%;
+  --success-foreground: 15 25% 8%;
+  --warning: 25 75% 65%;
+  --warning-foreground: 15 25% 8%;
+  --destructive: 0 75% 65%;
+  --destructive-foreground: 15 25% 8%;
+  --border: 15 15% 25%;
+  --input: 15 15% 30%;
+  --ring: 45 75% 65%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 75% 60%;
+  --chart-5: 340 85% 65%;
+  --sidebar-background: 15 20% 12%;
+  --sidebar-foreground: 35 15% 95%;
+  --sidebar-primary: 45 75% 65%;
+  --sidebar-primary-foreground: 15 25% 8%;
+  --sidebar-accent: 140 25% 25%;
+  --sidebar-accent-foreground: 35 15% 95%;
+  --sidebar-border: 15 15% 25%;
+  --sidebar-ring: 45 75% 65%;
+  
+  /* Dark mode gradients */
+  --gradient-warm: linear-gradient(135deg, hsl(45 75% 65%), hsl(45 80% 75%));
+  --gradient-spice: linear-gradient(135deg, hsl(25 75% 65%), hsl(35 80% 70%));
+  --gradient-fresh: linear-gradient(135deg, hsl(140 25% 25%), hsl(140 30% 35%));
+  
+  /* Dark mode shadows */
+  --shadow-warm: 0 10px 15px -3px hsla(45, 75%, 65%, 0.1), 0 4px 6px -4px hsla(45, 75%, 65%, 0.05);
+  --shadow-spice: 0 10px 25px -5px hsla(25, 75%, 65%, 0.15), 0 4px 10px -2px hsla(25, 75%, 65%, 0.1);
+ }
+}
+@layer base {
+ * {
+  @apply border-border;
+ }
+ body {
+  @apply bg-background text-foreground;
+ }
+}
+.shadow-warm {
+ box-shadow: var(--shadow-warm);
+}
+.dark .shadow-warm {
+ box-shadow: var(--shadow-warm);
+}
+.glow-primary {
+ text-shadow: 0 0 15px hsl(var(--primary-glow)), 0 0 25px hsl(var(--primary-glow));
+}
+.glow-accent {
+ text-shadow: 0 0 15px hsl(var(--accent-glow)), 0 0 25px hsl(var(--accent-glow));
+}
+.text-gradient-primary {
+ background: var(--gradient-warm);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ background-clip: text;
+}
+.text-gradient-accent {
+ background: var(--gradient-fresh);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ background-clip: text;
+}
+
+/* Additional utility classes for better styling */
+.bg-gradient-warm {
+ background: var(--gradient-warm);
+}
+.bg-gradient-spice {
+ background: var(--gradient-spice);
+}
+.bg-gradient-fresh {
+ background: var(--gradient-fresh);
+}
+.shadow-spice {
+ box-shadow: var(--shadow-spice);
+}
