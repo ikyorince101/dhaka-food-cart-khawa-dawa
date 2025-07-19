@@ -4,11 +4,23 @@ import { storage } from "./storage";
 import { insertUserSchema, insertOrderSchema, insertCustomerIssueSchema, insertMenuInventorySchema } from "@shared/schema";
 import { z } from "zod";
 import twilio from "twilio";
+import { SquareClient, SquareEnvironment } from "square";
+import crypto from "crypto";
 
 const twilioClient = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
+
+const squareClient = new SquareClient({
+  token: process.env.SQUARE_ACCESS_TOKEN,
+  environment:
+    process.env.SQUARE_ENVIRONMENT === "production"
+      ? SquareEnvironment.Production
+      : SquareEnvironment.Sandbox,
+});
+
+const paymentsApi = squareClient.payments;
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // User authentication routes
@@ -335,6 +347,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Update menu availability error:", error);
       res.status(500).json({ error: "Failed to update menu availability" });
+    }
+  });
+
+  // Square payment route
+  app.post("/api/payments", async (req, res) => {
+    try {
+      const { nonce, amount } = req.body;
+
+      if (!nonce || !amount) {
+        return res.status(400).json({ error: "Missing payment info" });
+      }
+
+      const result = await paymentsApi.create({
+        sourceId: nonce,
+        idempotencyKey: crypto.randomUUID(),
+        amountMoney: {
+          amount: BigInt(Math.round(Number(amount) * 100)),
+          currency: "USD",
+        },
+      });
+
+      res.json(result.payment);
+    } catch (error: any) {
+      console.error("Square payment error:", error);
+      const message = error?.message ?? "Payment processing failed";
+      res.status(500).json({ error: message });
     }
   });
 
