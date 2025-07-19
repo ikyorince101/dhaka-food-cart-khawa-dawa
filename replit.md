@@ -48,7 +48,7 @@ The application supports three distinct user roles:
 ### Order Processing Workflow
 1. **Cart Management**: Add/remove items with quantity tracking
 2. **Customer Information**: Name and phone number collection
-3. **Payment Processing**: Mock payment system with multiple methods
+3. **Payment Processing**: Sandbox payment processing via Square
 4. **Queue Management**: Real-time order tracking with queue numbers
 5. **Status Updates**: Pending → Preparing → Ready → Served workflow
 
@@ -126,6 +126,7 @@ The application supports three distinct user roles:
 - NODE_ENV differentiation for development/production
 - Build scripts handle both frontend and backend compilation
 - Database schema managed through Drizzle migrations
+- Square API credentials stored in `.env` (SQUARE_ACCESS_TOKEN, SQUARE_APPLICATION_ID, SQUARE_ENVIRONMENT)
 
 ### Hosting Considerations
 - Express server serves both API routes and static frontend
