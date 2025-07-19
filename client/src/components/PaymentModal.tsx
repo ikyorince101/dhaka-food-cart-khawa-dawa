@@ -79,40 +79,44 @@ export function PaymentModal({
     }
   };
 
-  const simulatePayment = async () => {
+  const processPayment = async () => {
     setProcessing(true);
-    
-    // Simulate payment processing delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Simulate 95% success rate
-    const isSuccess = Math.random() > 0.05;
-    
-    if (isSuccess) {
-      const paymentData = {
-        paymentId: `sq_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        method: paymentMethod,
-        amount: totalAmount,
-        last4: cardNumber.slice(-4).replace(/\s/g, ''),
-        status: 'completed'
-      };
-      
+
+    try {
+      const response = await fetch('/api/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nonce: 'cnon:card-nonce-ok',
+          amount: totalAmount,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Payment failed');
+      }
+
+      const paymentData = await response.json();
+
       onPaymentSuccess(paymentData);
-      
+
       toast({
-        title: "Payment Successful!",
+        title: 'Payment Successful!',
         description: `Your order has been placed and payment of $${totalAmount.toFixed(2)} was processed successfully.`,
       });
-      
+
       onClose();
-    } else {
+    } catch (error) {
+      console.error('Square payment error:', error);
       toast({
-        title: "Payment Failed",
-        description: "There was an issue processing your payment. Please try again.",
-        variant: "destructive",
+        title: 'Payment Failed',
+        description: 'There was an issue processing your payment. Please try again.',
+        variant: 'destructive',
       });
     }
-    
+
     setProcessing(false);
   };
 
@@ -128,7 +132,7 @@ export function PaymentModal({
       return;
     }
     
-    simulatePayment();
+    processPayment();
   };
 
   return (
