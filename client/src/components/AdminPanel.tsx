@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Clock, ClipboardList, CheckCircle, Warehouse, MoreVertical, AlertTriangle, ExternalLink, Play } from 'lucide-react';
+import { Clock, ClipboardList, CheckCircle, Warehouse, MoreVertical, AlertTriangle, ExternalLink, Play, Trash2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { InventoryManagement } from './InventoryManagement';
 
@@ -58,10 +58,10 @@ export function AdminPanel() {
 
       await fetchOrders();
 
-      const statusMessages = {
-        'preparing': 'Order is now being prepared',
-        'ready': 'Order is ready for pickup',
-        'served': 'Order has been served'
+      const statusMessages: Record<string, string> = {
+        preparing: 'Order is now being prepared',
+        ready: 'Order is ready for pickup',
+        served: 'Order has been served'
       };
 
       toast({

@@ -21,7 +21,7 @@ Preferred communication style: Simple, everyday language.
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework
 - **Language**: TypeScript with ES modules
-- **Database**: PostgreSQL with Neon serverless database
+ - **Database**: PostgreSQL with Supabase serverless database
 - **ORM**: Drizzle ORM for type-safe database operations
 - **Session Management**: Connect-pg-simple for PostgreSQL session storage
 
@@ -90,7 +90,7 @@ The application supports three distinct user roles:
 - **Styling**: Tailwind CSS, class-variance-authority for component variants
 
 ### Database and Backend
-- **Database**: Neon PostgreSQL serverless database
+- **Database**: Supabase PostgreSQL serverless database
 - **ORM**: Drizzle ORM with TypeScript support
 - **Validation**: Zod for schema validation
 - **Session storage**: connect-pg-simple for PostgreSQL sessions
@@ -121,8 +121,8 @@ The application supports three distinct user roles:
 3. **Database**: Drizzle migrations handle schema updates
 4. **Assets**: Static assets served from build directory
 
-### Environment Configuration
-- Database URL required for PostgreSQL connection
+-### Environment Configuration
+- Supabase connection string required for PostgreSQL access
 - NODE_ENV differentiation for development/production
 - Build scripts handle both frontend and backend compilation
 - Database schema managed through Drizzle migrations

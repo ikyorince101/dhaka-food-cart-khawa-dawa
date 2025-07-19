@@ -67,6 +67,7 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   customerName: true,
   customerPhone: true,
   totalAmount: true,
+  queueNumber: true,
   estimatedTime: true,
   paymentMethod: true,
 }).extend({
